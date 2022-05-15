@@ -159,6 +159,16 @@ HCURSOR CMFChatClientDlg::OnQueryDragIcon()
 void CMFChatClientDlg::OnBnClickedConnectButton()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	TRACE("[ChatClient]Connect button");
-	TRACE("Connect button success ");
+	TRACE("##OnBnClickedConnectButton");
+	CString strPort, strIP;
+	// 从控件获取内容
+	GetDlgItem(IDC_PORT_EDIT)->GetWindowText(strPort);
+	GetDlgItem(IDC_IPADDRESS)->GetWindowText(strIP);
+
+	// Cstring 转char *
+	USES_CONVERSION;
+	LPCSTR  szPort = (LPCSTR)T2A(strPort);
+	LPCSTR  szIP= (LPCSTR)T2A(strIP);
+	TRACE("szPort = %s, szIP = %s", szPort, szIP);
+
 }
