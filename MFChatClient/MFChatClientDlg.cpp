@@ -160,4 +160,5 @@ void CMFChatClientDlg::OnBnClickedConnectButton()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	TRACE("[ChatClient]Connect button");
+	TRACE("Connect button success ");
 }
