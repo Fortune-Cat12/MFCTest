@@ -1,0 +1,2 @@
+# MFCTest
+MFC test project
