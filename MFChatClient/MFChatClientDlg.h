@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "CMySocket.h"
 
 
 // CMFChatClientDlg 对话框
@@ -33,4 +34,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedConnectButton();
+	CMySocket* m_client;
+	CListBox m_list;
+	CTime m_tm; // 实时时间
+	CEdit m_input;
+	afx_msg void OnBnClickedSendButton();
 };

@@ -59,6 +59,8 @@ CMFChatClientDlg::CMFChatClientDlg(CWnd* pParent /*=nullptr*/)
 void CMFChatClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_HISTORYMSG_LIST, m_list);
+	DDX_Control(pDX, IDC_SENDMSG_EDIT, m_input);
 }
 
 BEGIN_MESSAGE_MAP(CMFChatClientDlg, CDialogEx)
@@ -66,6 +68,7 @@ BEGIN_MESSAGE_MAP(CMFChatClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_CONNECT_BUTTON, &CMFChatClientDlg::OnBnClickedConnectButton)
+	ON_BN_CLICKED(IDC_SEND_BUTTON, &CMFChatClientDlg::OnBnClickedSendButton)
 END_MESSAGE_MAP()
 
 
@@ -101,6 +104,8 @@ BOOL CMFChatClientDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	GetDlgItem(IDC_PORT_EDIT)->SetWindowText(_T("5000"));
+	GetDlgItem(IDC_IPADDRESS)->SetWindowText(_T("127.0.0.1"));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -171,4 +176,51 @@ void CMFChatClientDlg::OnBnClickedConnectButton()
 	LPCSTR  szIP= (LPCSTR)T2A(strIP);
 	TRACE("szPort = %s, szIP = %s", szPort, szIP);
 
+	int iPort = _ttoi(strPort);
+	// 创建socket对象
+	m_client = new CMySocket;
+	
+	// 创建套接字
+	if (!m_client->Create())
+	{
+		TRACE("m_client Create error %d", GetLastError());
+		return;
+	}
+
+	//连接
+	if (m_client->Connect(strIP, iPort) != SOCKET_ERROR)
+	{
+		TRACE("m_client Connect error %d", GetLastError());
+		return;
+	}
+
+}
+
+
+void CMFChatClientDlg::OnBnClickedSendButton()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	// 获取编辑框内容
+	CString strTmpMsg;
+	GetDlgItem(IDC_SENDMSG_EDIT)->GetWindowText(strTmpMsg);
+
+	USES_CONVERSION;
+	char* szSendBuf = T2A(strTmpMsg);
+
+	// 发送给服务端
+	m_client->Send(szSendBuf, 200, 0);
+
+	// 显示到列表框
+	CString strShow = _T("我：");
+	CString strTime;
+	m_tm = CTime::GetTickCount();
+	strTime = m_tm.Format("%X  ");
+	strShow = strTime + strShow;
+	strShow += strTmpMsg;
+	m_list.AddString(strShow);
+	UpdateData(FALSE);
+
+	// 清空编辑框
+	GetDlgItem(IDC_SENDMSG_EDIT)->SetWindowTextW(_T(""));
+	
 }
