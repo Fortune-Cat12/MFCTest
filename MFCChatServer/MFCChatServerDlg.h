@@ -37,7 +37,8 @@ public:
 	afx_msg void OnBnClickedStartButton();
 	CListBox m_list;
 	CServerSocket* m_server;
-	CTime m_tm;
+	//CTime m_tm;
 	CChatSocket* m_chat;
 	afx_msg void OnBnClickedSendButton();
+	CString CatShowString(CString strInfo, CString strMsg);
 };

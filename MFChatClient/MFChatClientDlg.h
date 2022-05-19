@@ -36,7 +36,8 @@ public:
 	afx_msg void OnBnClickedConnectButton();
 	CMySocket* m_client;
 	CListBox m_list;
-	CTime m_tm; // 实时时间
 	CEdit m_input;
 	afx_msg void OnBnClickedSendButton();
+	CString CatShowString(CString strInfo, CString strMsg);
+	afx_msg void OnBnClickedAutosendRadio();
 };

@@ -157,7 +157,20 @@ HCURSOR CMFCChatServerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+CString CMFCChatServerDlg::CatShowString(CString strInfo, CString strMsg)
+{
 
+	CString strTime;
+	CTime tmNow;
+	tmNow = CTime::GetTickCount();
+	strTime = tmNow.Format("%X  ");
+	CString strShow;
+	strShow = strTime + strShow;
+	strShow += strInfo;
+	strShow += strMsg;
+
+	return strShow;
+}
 
 void CMFCChatServerDlg::OnBnClickedStartButton()
 {
@@ -195,11 +208,14 @@ void CMFCChatServerDlg::OnBnClickedStartButton()
 		TRACE("m_server Listen  Success");
 	}
 
-	CString str;
-	m_tm = CTime::GetTickCount();
+	CString strShow;
+	/*m_tm = CTime::GetTickCount();
 	str = m_tm.Format("%X  ");
-	str += _T("建立服务");
-	m_list.AddString(str);
+	str += _T("建立服务");*/
+	CString strInfo = _T("");
+	CString strMsg = _T("建立服务");
+	strShow = CatShowString(strInfo, strMsg);
+	m_list.AddString(strShow);
 	UpdateData(FALSE);
 }
 
@@ -215,15 +231,12 @@ void CMFCChatServerDlg::OnBnClickedSendButton()
 	char* szSendBuf = T2A(strTmpMsg);
 
 	// 发送给客户端
-	m_chat->Send(szSendBuf, 200, 0);
+	m_chat->Send(szSendBuf, SEND_SERVER_BUF, 0);
 
 	// 显示到列表框
-	CString strShow = _T("我：");
-	CString strTime;
-	m_tm = CTime::GetTickCount();
-	strTime = m_tm.Format("%X  ");
-	strShow = strTime + strShow;
-	strShow += strTmpMsg;
+	CString strShow;
+	CString strInfo = _T("服务端:");
+	strShow = CatShowString(strInfo, strTmpMsg);
 	m_list.AddString(strShow);
 	UpdateData(FALSE);
 

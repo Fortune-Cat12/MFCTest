@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(CMFChatClientDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_CONNECT_BUTTON, &CMFChatClientDlg::OnBnClickedConnectButton)
 	ON_BN_CLICKED(IDC_SEND_BUTTON, &CMFChatClientDlg::OnBnClickedSendButton)
+	ON_BN_CLICKED(IDC_AUTOSEND_RADIO, &CMFChatClientDlg::OnBnClickedAutosendRadio)
 END_MESSAGE_MAP()
 
 
@@ -196,6 +197,19 @@ void CMFChatClientDlg::OnBnClickedConnectButton()
 
 }
 
+CString CMFChatClientDlg::CatShowString(CString strInfo, CString strMsg) {
+
+	CString strTime;
+	CTime tmNow;
+	tmNow = CTime::GetTickCount();
+	strTime = tmNow.Format("%X  ");
+	CString strShow;
+	strShow = strTime + strShow;
+	strShow += strInfo;
+	strShow += strMsg;
+
+	return strShow;
+}
 
 void CMFChatClientDlg::OnBnClickedSendButton()
 {
@@ -208,19 +222,30 @@ void CMFChatClientDlg::OnBnClickedSendButton()
 	char* szSendBuf = T2A(strTmpMsg);
 
 	// 发送给服务端
-	m_client->Send(szSendBuf, 200, 0);
+	m_client->Send(szSendBuf, SEND_MAX_BUF, 0);
 
 	// 显示到列表框
-	CString strShow = _T("我：");
-	CString strTime;
-	m_tm = CTime::GetTickCount();
-	strTime = m_tm.Format("%X  ");
-	strShow = strTime + strShow;
-	strShow += strTmpMsg;
+	CString strShow;
+	CString strInfo = _T("我：");
+	strShow = CatShowString(strInfo, strTmpMsg);
 	m_list.AddString(strShow);
 	UpdateData(FALSE);
 
 	// 清空编辑框
 	GetDlgItem(IDC_SENDMSG_EDIT)->SetWindowTextW(_T(""));
 	
+}
+
+
+void CMFChatClientDlg::OnBnClickedAutosendRadio()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (((CButton*)GetDlgItem(IDC_AUTOSEND_RADIO))->GetCheck())
+	{
+		((CButton*)GetDlgItem(IDC_AUTOSEND_RADIO))->SetCheck(FALSE);
+	}
+	else
+	{
+		((CButton*)GetDlgItem(IDC_AUTOSEND_RADIO))->SetCheck(TRUE);
+	}
 }
