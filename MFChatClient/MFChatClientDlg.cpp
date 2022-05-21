@@ -61,6 +61,7 @@ void CMFChatClientDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_HISTORYMSG_LIST, m_list);
 	DDX_Control(pDX, IDC_SENDMSG_EDIT, m_input);
+	DDX_Control(pDX, IDC_COLOR_COMBO, m_WordColorCombo);
 }
 
 BEGIN_MESSAGE_MAP(CMFChatClientDlg, CDialogEx)
@@ -70,6 +71,9 @@ BEGIN_MESSAGE_MAP(CMFChatClientDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CONNECT_BUTTON, &CMFChatClientDlg::OnBnClickedConnectButton)
 	ON_BN_CLICKED(IDC_SEND_BUTTON, &CMFChatClientDlg::OnBnClickedSendButton)
 	ON_BN_CLICKED(IDC_AUTOSEND_RADIO, &CMFChatClientDlg::OnBnClickedAutosendRadio)
+	ON_BN_CLICKED(IDC_CLEARMSG_BUTTON, &CMFChatClientDlg::OnBnClickedClearmsgButton)
+	ON_BN_CLICKED(IDC_DISCONNECT_BUTTON, &CMFChatClientDlg::OnBnClickedDisconnectButton)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -107,6 +111,19 @@ BOOL CMFChatClientDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	GetDlgItem(IDC_PORT_EDIT)->SetWindowText(_T("5000"));
 	GetDlgItem(IDC_IPADDRESS)->SetWindowText(_T("127.0.0.1"));
+
+	// 初始化控件
+	GetDlgItem(IDC_SEND_BUTTON)->EnableWindow(FALSE);
+	GetDlgItem(IDC_DISCONNECT_BUTTON)->EnableWindow(FALSE);
+	GetDlgItem(IDC_CONNECT_BUTTON)->EnableWindow(TRUE);
+	GetDlgItem(IDC_AUTOSEND_RADIO)->EnableWindow(FALSE);
+	m_WordColorCombo.AddString(_T("黑色"));
+	m_WordColorCombo.AddString(_T("红色"));
+	m_WordColorCombo.AddString(_T("蓝色"));
+	m_WordColorCombo.AddString(_T("绿色"));
+
+	m_WordColorCombo.SetCurSel(0);
+	SetDlgItemText(IDC_COLOR_COMBO, _T("黑色"));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -149,6 +166,26 @@ void CMFChatClientDlg::OnPaint()
 	}
 	else
 	{
+		// 定义dc
+		CPaintDC dc(this);
+		// 确认绘制的区域
+		CRect rect;
+		GetClientRect(&rect);
+		TRACE("width = %d, height=%d", rect.Width(), rect.Height());
+		// 定义并创建一个内存设备环境，创建兼容性DC
+		CDC dcBmp;
+		dcBmp.CreateCompatibleDC(&dcBmp);
+		// 载入资源文件
+		CBitmap bmpBackGround;
+		bmpBackGround.LoadBitmap(IDB_BITMAP_HILL);
+		//将图片资源载入到位图里面 bBitMap位图
+		BITMAP  bBitMap;
+		bmpBackGround.GetBitmap(&bBitMap);
+		// 将位图选入临时的内存设备环境
+		CBitmap* pBmpOld = dcBmp.SelectObject(&bmpBackGround);
+		// 开始绘制
+		dc.StretchBlt(0, 0, rect.Width(), rect.Height(), &dcBmp, 0, 0, bBitMap.bmWidth, bBitMap.bmHeight, SRCCOPY);
+
 		CDialogEx::OnPaint();
 	}
 }
@@ -166,6 +203,12 @@ void CMFChatClientDlg::OnBnClickedConnectButton()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	TRACE("##OnBnClickedConnectButton");
+
+	GetDlgItem(IDC_SEND_BUTTON)->EnableWindow(TRUE);
+	GetDlgItem(IDC_DISCONNECT_BUTTON)->EnableWindow(TRUE);
+	GetDlgItem(IDC_CONNECT_BUTTON)->EnableWindow(FALSE);
+	GetDlgItem(IDC_AUTOSEND_RADIO)->EnableWindow(TRUE);
+
 	CString strPort, strIP;
 	// 从控件获取内容
 	GetDlgItem(IDC_PORT_EDIT)->GetWindowText(strPort);
@@ -248,4 +291,101 @@ void CMFChatClientDlg::OnBnClickedAutosendRadio()
 	{
 		((CButton*)GetDlgItem(IDC_AUTOSEND_RADIO))->SetCheck(TRUE);
 	}
+}
+
+
+void CMFChatClientDlg::OnBnClickedClearmsgButton()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_list.ResetContent();
+}
+
+
+void CMFChatClientDlg::OnBnClickedDisconnectButton()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//控制控件
+	GetDlgItem(IDC_SEND_BUTTON)->EnableWindow(FALSE);
+	GetDlgItem(IDC_DISCONNECT_BUTTON)->EnableWindow(FALSE);
+	GetDlgItem(IDC_CONNECT_BUTTON)->EnableWindow(TRUE);
+	GetDlgItem(IDC_AUTOSEND_RADIO)->EnableWindow(FALSE);
+
+	// 回收资源
+	m_client->Close();
+	if (m_client != NULL)
+	{
+		delete m_client;
+		m_client = NULL;
+	} 
+	
+	// 显示到列表框
+	// 显示到列表框
+	CString strShow;
+	strShow = CatShowString(_T(""), _T(" 断开与服务器连接"));
+	m_list.AddString(strShow);
+	UpdateData(FALSE);
+}
+
+
+HBRUSH CMFChatClientDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  在此更改 DC 的任何特性
+
+	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
+	CString strColor;
+	m_WordColorCombo.GetWindowTextW(strColor);
+	if (IDC_HISTORYMSG_LIST == pWnd->GetDlgCtrlID() || IDC_SENDMSG_EDIT == pWnd->GetDlgCtrlID())
+	{
+		if (strColor == L"黑色")
+		{
+			pDC->SetTextColor(RGB(0, 0, 0));
+		}
+		else if (strColor == L"红色")
+		{
+			pDC->SetTextColor(RGB(255, 0, 0));
+		}
+		else if (strColor == L"蓝色")
+		{
+			pDC->SetTextColor(RGB(0, 0, 255));
+		}
+		else if (strColor == L"绿色")
+		{
+			pDC->SetTextColor(RGB(0, 255, 0));
+		}
+	}
+
+	return hbr;
+}
+
+
+BOOL CMFChatClientDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	// 规避回车键
+	if (pMsg->message == WM_KEYDOWN && pMsg->message == VK_RETURN)
+	{
+		return TRUE;
+	}
+	// 规避空格键
+	if (pMsg->message == WM_KEYDOWN && pMsg->message == VK_SPACE)
+	{
+		return TRUE;
+	}
+
+	// 添加快捷键 ctrl + q 退出
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		if (GetKeyState(VK_CONTROL) < 0) //ctrl 是否被按下
+		{
+			TRACE("按下Ctrl");
+			if (pMsg->wParam == 'q')
+			{
+				CDialogEx::OnOK();
+			}
+		}
+	}
+
+	return CDialogEx::PreTranslateMessage(pMsg);
 }

@@ -37,7 +37,12 @@ public:
 	CMySocket* m_client;
 	CListBox m_list;
 	CEdit m_input;
+	CComboBox m_WordColorCombo;
 	afx_msg void OnBnClickedSendButton();
 	CString CatShowString(CString strInfo, CString strMsg);
 	afx_msg void OnBnClickedAutosendRadio();
+	afx_msg void OnBnClickedClearmsgButton();
+	afx_msg void OnBnClickedDisconnectButton();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

@@ -209,6 +209,9 @@
     <None Include="res\MFChatClient.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\MFCChatServer\res\bg.bmp" />
+    <Image Include="..\..\..\MFChatClient\res\hill.bmp" />
+    <Image Include="C:\Users\mayn\Desktop\bg.bmp" />
     <Image Include="res\MFChatClient.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -65,5 +65,14 @@
     <Image Include="res\MFChatClient.ico">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="C:\Users\mayn\Desktop\bg.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\..\MFCChatServer\res\bg.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\..\MFChatClient\res\hill.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>
